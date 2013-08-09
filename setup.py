@@ -8,11 +8,10 @@ setup(
     packages=['azurepython3'],
     scripts=[],
     url='http://pypi.python.org/pypi/AzurePython3/',
-    license='LICENSE.txt',
-    description='Useful towel-related stuff.',
-    long_description=open('README.txt').read(),
+    license='LICENSE',
+    description='Incomplete Windows Azure library for Python 3',
+    long_description=open('README.md').read(),
     install_requires=[
-        "requests >= 1.2.3",
-        "flufl.enum >= 4.0"
+        "requests >= 1.2.3"
     ],
 )
