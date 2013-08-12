@@ -2,6 +2,13 @@ from datetime import datetime
 import requests
 from azurepython3.auth import SharedKeyAuthentication
 
+USE_SSL = True
+
+try:
+    import ssl
+except ImportError:
+    USE_SSL = False
+
 
 class AzureService:
 
@@ -12,7 +19,9 @@ class AzureService:
         self.account_key = account_key
         self.auth = SharedKeyAuthentication(account_name, account_key)
 
-    def get_host(self, protocol='https'):
+    def get_host(self, protocol=None):
+        if protocol is None:
+            protocol = 'https' if USE_SSL else 'http'
         return "%s://%s.blob.core.windows.net" % (protocol, self.account_name)
 
     def get_url(self, query = '/'):

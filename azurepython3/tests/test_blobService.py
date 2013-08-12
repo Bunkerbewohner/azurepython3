@@ -7,7 +7,8 @@ from azurepython3.blobservice import BlobService
 
 class TestBlobService(TestCase):
 
-    CREDENTIALS_PATH = 'azurecredentials.json'
+    # expecting a JSON file with credentials ("account_name" and "account_key") in test directory
+    CREDENTIALS_PATH =  os.path.dirname(os.path.abspath(__file__)) + '/azurecredentials.json'
 
     def setUp(self):
         # find azure credentials for testing. expects them in cwd
