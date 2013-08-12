@@ -1,3 +1,4 @@
+import json
 import xml.etree.ElementTree as etree
 from azurepython3.service import AzureService
 
@@ -20,6 +21,14 @@ class BlobService(AzureService):
     def __init__(self, account_name, account_key):
         super().__init__(account_name, account_key)
 
+    @classmethod
+    def from_config(self, filename):
+        with open(filename, "r") as file:
+            credentials = json.load(file)
+
+        # create the blob service
+        return BlobService(credentials['account_name'], credentials['account_key'])
+
     def create_container(self, name, access = None):
         """
         :param name: name containing only letters, numbers and dashes
@@ -34,11 +43,10 @@ class BlobService(AzureService):
         response = self._request('delete', '/' + name, params = {'restype': 'container'})
         return response.status_code == 202 # Accepted?
 
-    def list_containers(self, prefix=None, maxresults=None, metadata=False):
+    def list_containers(self, prefix=None, metadata=False):
         query = {
             'comp': 'list',
             'prefix': prefix,
-            'maxresults': maxresults,
             'include': 'metadata' if metadata else None
         }
 
@@ -50,3 +58,31 @@ class BlobService(AzureService):
         # list containers
         # TODO: handle <NextMarker> for paginated results
         return [Container.from_element(x) for x in root.iter('Container')]
+
+    def list_blobs(self, container, prefix = None, delimiter = None):
+        """
+        Lists blobs in a container. This implementation does not yet consider markers and maxresults
+        for paginated lists of more than 5000 entries.
+        :param container: container name
+        :param prefix: common blob name prefix
+        :param delimiter: allows structuring blobs by delimiters (default: '/')
+        """
+
+        query = {
+            'restype': 'container',
+            'comp': 'list',
+            'prefix': prefix,
+            'delimiter': delimiter
+        }
+
+        response = self._request('get', '/' + container, params = query)
+        root = etree.fromstring(response.text)
+
+        return [x for x in root.iter('Blob')]
+
+    def create_blob(self, container, name, content):
+        headers = {
+            'x-ms-blob-type': "BlockBlob"
+        }
+        response = self._request('put', '/%s/%s' % (container, name), headers=headers, content = content)
+        return response.status_code == 201

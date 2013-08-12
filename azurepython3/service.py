@@ -39,19 +39,31 @@ class AzureService:
             'timeout': self.timeout
         }
 
-    def _request(self, method, uri, headers = None, params = None):
+    def _request(self, method, uri, headers = None, params = None, content = None):
+        if content is None:
+            content = dict()
+
         headers = dict(self._headers(), **headers) if headers else self._headers()
         params = dict(self._params(), **params) if params else self._params()
-        req = requests.Request(method, self.get_url(uri), headers=headers, params=params)
+        req = requests.Request(method, self.get_url(uri), data=content, headers=headers, params=params)
 
         # Give content length for modifying requests
-        if method.lower() in ['put', 'post', 'merge', 'delete']:
+        if method.lower() in ['put', 'post', 'merge', 'delete'] and not content:
             req.headers['Content-Length'] = '0'
+        else:
+            req.headers['Content-Length'] = str(len(content))
+
 
         # Generate and append Authorization signature to request headers
         self.auth.authenticate(req)
 
-        response = requests.session().send(req.prepare())
+        request = req.prepare()
+
+        if content:
+            del request.headers['content-type']
+            del request.headers['content-length']
+
+        response = requests.session().send(request)
         response.encoding = 'utf-8-sig'
 
         # raise underlying HTTPError if something goes wrong
