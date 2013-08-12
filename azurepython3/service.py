@@ -50,18 +50,10 @@ class AzureService:
         # Give content length for modifying requests
         if method.lower() in ['put', 'post', 'merge', 'delete'] and not content:
             req.headers['Content-Length'] = '0'
-        else:
-            req.headers['Content-Length'] = str(len(content))
-
 
         # Generate and append Authorization signature to request headers
-        self.auth.authenticate(req)
-
+        self.auth.authenticate(req, len(content))
         request = req.prepare()
-
-        if content:
-            del request.headers['content-type']
-            del request.headers['content-length']
 
         response = requests.session().send(request)
         response.encoding = 'utf-8-sig'

@@ -56,8 +56,8 @@ class TestBlobService(TestCase):
                 self.fail("Failed to create test container")
 
         # attempt to upload the file
-        bytes = b'test byte string 11.5.2.7.3.14.59.2013.08.12'
-        self.assertTrue(self.service.create_blob(container, 'somefile.ext', bytes))
+        data = bytearray(b'test byte string 11.5.2.7.3.14.59.2013.08.12')
+        self.assertTrue(self.service.create_blob(container, 'somefile.ext', data))
 
         # delete the container
         self.service.delete_container(container)

@@ -14,22 +14,24 @@ class SharedKeyAuthentication:
         self.account_name = account_name
         self.account_key = account_key
 
-    def auth_header(self, request : requests.Request):
+    def auth_header(self, request : requests.Request, content_length = None):
         """ Computes the value of the Authorization header, following the form "SharedKey accountname:signature" """
-        signature = self._signature(request)
+        signature = self._signature(request, content_length)
         return 'SharedKey %s:%s' % (self.account_name, self._sign(signature))
 
-    def authenticate(self, request : requests.Request):
+    def authenticate(self, request : requests.Request, content_length = None):
         """ Computes and adds the Authorization header to request """
-        request.headers['Authorization'] = self.auth_header(request)
+        request.headers['Authorization'] = self.auth_header(request, content_length)
 
-    def _signature(self, request : requests.Request):
+    def _signature(self, request : requests.Request, content_length = None):
         """
         Creates the signature string for this request according to
         http://msdn.microsoft.com/en-us/library/windowsazure/dd179428.aspx
         """
 
-        headers = {name.lower(): value for name, value in request.headers.items()}
+        headers = {str(name).lower(): value for name, value in request.headers.items()}
+        if content_length > 0:
+            headers['content-length'] = str(content_length)
 
         # method to sign
         signature = request.method.upper() + '\n'
