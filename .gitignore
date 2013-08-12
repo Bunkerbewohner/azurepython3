@@ -36,3 +36,5 @@ nosetests.xml
 
 # Idea
 .idea/
+
+azurepython3/tests/azurecredentials.json
