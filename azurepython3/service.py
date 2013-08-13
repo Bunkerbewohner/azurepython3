@@ -43,6 +43,10 @@ class AzureService:
         if content is None:
             content = dict()
 
+        # filter empty headers
+        if headers != None:
+            headers = { key: value for key, value in headers.items() if value != None }
+
         headers = dict(self._headers(), **headers) if headers else self._headers()
         params = dict(self._params(), **params) if params else self._params()
         req = requests.Request(method, self.get_url(uri), data=content, headers=headers, params=params)

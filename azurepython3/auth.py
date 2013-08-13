@@ -29,7 +29,7 @@ class SharedKeyAuthentication:
         http://msdn.microsoft.com/en-us/library/windowsazure/dd179428.aspx
         """
 
-        headers = {str(name).lower(): value for name, value in request.headers.items()}
+        headers = {str(name).lower(): value for name, value in request.headers.items() if not value is None}
         if content_length > 0:
             headers['content-length'] = str(content_length)
 

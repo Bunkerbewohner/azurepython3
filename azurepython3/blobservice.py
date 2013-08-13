@@ -112,7 +112,7 @@ class BlobService(AzureService):
 
         return [Blob.from_element(x) for x in root.iter('Blob')]
 
-    def create_blob(self, container, name, content):
+    def create_blob(self, container, name, content, content_encoding = None):
         """
         Creates a new blob in the destination container (which must exist). Content is expected to be an iterable
         of bytes, such as a bytearray.
@@ -120,6 +120,6 @@ class BlobService(AzureService):
         :param name: blob name
         :param content: byte content
         """
-        headers = { 'x-ms-blob-type': "BlockBlob" }
+        headers = { 'x-ms-blob-type': "BlockBlob", 'Content-Encoding': content_encoding }
         response = self._request('put', '/%s/%s' % (container, name), headers=headers, content = content)
         return response.status_code == 201
