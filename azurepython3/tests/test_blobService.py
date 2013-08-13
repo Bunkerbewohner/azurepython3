@@ -61,3 +61,22 @@ class TestBlobService(TestCase):
 
         # delete the container
         self.service.delete_container(container)
+
+    def test_delete_blob(self):
+        container = '%s-test2' % self.CONTAINER_PREFIX
+
+        # create a test container
+        try:
+            self.service.create_container(container)
+        except HTTPError as e:
+            if e.response.status_code != 409:
+                raise e
+
+        # create a file
+        self.service.create_blob(container, 'file-to-delete.ext', bytearray(b'THIS FILE SHOULD BE DELETED'))
+
+        # delete the file
+        self.assertTrue(self.service.delete_blob(container, 'file-to-delete.ext'))
+
+        # delete the container again
+        self.service.delete_container(container)

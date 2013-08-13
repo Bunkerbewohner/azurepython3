@@ -52,7 +52,11 @@ class BlobService(AzureService):
 
     @classmethod
     def discover(cls):
-        """ Searches for an Azure configuration file to take the credentials from """
+        """
+        Searches for an Azure configuration file to take the credentials from. The file must be located within the
+        current work directory's subtree and be called 'azurecredentials.json', with contents suitable for the
+        BlobService.from_config method.
+        """
         import os
         for root, dirs, files in os.walk('.'):
           for file in files:
@@ -122,4 +126,8 @@ class BlobService(AzureService):
         """
         headers = { 'x-ms-blob-type': "BlockBlob", 'Content-Encoding': content_encoding }
         response = self._request('put', '/%s/%s' % (container, name), headers=headers, content = content)
-        return response.status_code == 201
+        return response.status_code == 201 # Created
+
+    def delete_blob(self, container, name):
+        response = self._request('delete', '/%s/%s' % (container, name))
+        return response.status_code == 202 # Accepted
