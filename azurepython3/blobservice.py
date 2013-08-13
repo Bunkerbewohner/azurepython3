@@ -32,15 +32,29 @@ class Blob:
         self.properties = properties if properties != None else {}
         self.metadata = metadata if metadata != None else {}
 
+    def content_length(self):
+        """ Returns the size of the blob's content in bytes """
+        return int(self.properties['Content-Length'])
+
     def download_text(self, encoding = None):
+        """
+        Downloads the blob context as text. If no encoding is provided it is determined automatically  based
+        on the content-encoding header of the response. Alternatively a specific content encoding can be
+        specified through the second argument.
+        """
         response = requests.get(self.url)
 
         if encoding != None:
             response.encoding = encoding
+        elif encoding is None and 'Content-Encoding' in self.properties:
+            response.encoding = self.properties['Content-Encoding']
 
         return response.text
 
     def download_bytes(self):
+        """
+        Downloads the binary content of the file.
+        """
         return requests.get(self.url).content
 
 
