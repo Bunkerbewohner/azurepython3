@@ -135,20 +135,18 @@ class BlobService(AzureService):
         # TODO: handle <NextMarker> for paginated results
         return [Container.from_element(x) for x in root.iter('Container')]
 
-    def list_blobs(self, container, prefix = None, delimiter = None):
+    def list_blobs(self, container, prefix = None):
         """
         Lists blobs in a container. This implementation does not yet consider markers and maxresults
         for paginated lists of more than 5000 entries.
         :param container: container name
         :param prefix: common blob name prefix
-        :param delimiter: allows structuring blobs by delimiters (default: '/')
         """
 
         query = {
             'restype': 'container',
             'comp': 'list',
-            'prefix': prefix,
-            'delimiter': delimiter
+            'prefix': prefix
         }
 
         response = self._request('get', '/' + container, params = query)
