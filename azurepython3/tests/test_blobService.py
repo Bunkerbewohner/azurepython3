@@ -29,6 +29,14 @@ class TestBlobService(TestCase):
         # generate names for the test containers
         self.container_names = ["%s-%d" % (self.CONTAINER_PREFIX, i) for i in range(5)]
 
+    def create_container(self, name):
+        # create a test container
+        try:
+            self.service.create_container(name)
+        except HTTPError as e:
+            if e.response.status_code != 409:
+                raise e
+
     def tearDown(self):
         # delete the test containers
         for name in self.container_names:
@@ -66,11 +74,7 @@ class TestBlobService(TestCase):
         container = '%s-test2' % self.CONTAINER_PREFIX
 
         # create a test container
-        try:
-            self.service.create_container(container)
-        except HTTPError as e:
-            if e.response.status_code != 409:
-                raise e
+        self.create_container(container)
 
         # create a file
         self.service.create_blob(container, 'file-to-delete.ext', bytearray(b'THIS FILE SHOULD BE DELETED'))
@@ -79,4 +83,25 @@ class TestBlobService(TestCase):
         self.assertTrue(self.service.delete_blob(container, 'file-to-delete.ext'))
 
         # delete the container again
+        self.service.delete_container(container)
+
+    def test_list_blobs(self):
+        container = '%s-test3' % self.CONTAINER_PREFIX
+        self.create_container(container)
+
+        self.service.create_blob(container, 'folder1/file1.ext', bytearray(b'THIS FILE SHOULD BE LISTED'))
+        self.service.create_blob(container, 'folder1/file2.ext', bytearray(b'THIS FILE SHOULD BE LISTED'))
+        self.service.create_blob(container, 'folder2/file3.ext', bytearray(b'THIS FILE SHOULD BE LISTED'))
+        self.service.create_blob(container, 'file4.ext', bytearray(b'THIS FILE SHOULD BE LISTED'))
+
+        blobs1 = self.service.list_blobs(container)
+        self.assertSetEqual({'folder1/file1.ext', 'folder1/file2.ext', 'folder2/file3.ext', 'file4.ext'},
+                             set([blob.name for blob in blobs1]))
+
+        blobs2 = self.service.list_blobs(container, prefix = 'folder1')
+        self.assertSetEqual({'folder1/file1.ext', 'folder1/file2.ext'}, set([blob.name for blob in blobs2]))
+
+        blobs3 = self.service.list_blobs(container, prefix = 'folder2')
+        self.assertSetEqual({'folder2/file3.ext'}, set([blob.name for blob in blobs3]))
+
         self.service.delete_container(container)
