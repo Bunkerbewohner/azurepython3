@@ -1,4 +1,5 @@
 import json
+import mimetypes
 import xml.etree.ElementTree as etree
 import requests
 from azurepython3.service import AzureService
@@ -31,6 +32,7 @@ class Blob:
         self.url = url
         self.properties = properties if properties != None else {}
         self.metadata = metadata if metadata != None else {}
+        self.content = None
 
     def content_length(self):
         """ Returns the size of the blob's content in bytes """
@@ -70,6 +72,9 @@ class Blob:
             metadata = {}
 
         return Blob(name, url, properties, metadata)
+
+    def __str__(self):
+        return self.url
 
 
 class BlobService(AzureService):
@@ -160,6 +165,11 @@ class BlobService(AzureService):
         :param content: byte content
         """
         headers = { 'x-ms-blob-type': "BlockBlob", 'Content-Encoding': content_encoding }
+
+        content_type = mimetypes.guess_type(name)[0]
+        if content_type != None:
+            headers['Content-Type'] = content_type
+
         response = self._request('put', '/%s/%s' % (container, name), headers=headers, content = content)
         return response.status_code == 201 # Created
 
@@ -167,16 +177,31 @@ class BlobService(AzureService):
         response = self._request('delete', '/%s/%s' % (container, name))
         return response.status_code == 202 # Accepted
 
-    def get_blob(self, container, name):
+    def get_blob(self, container, name, with_content = True):
         """
         Gets a blob including its properties and metadata.
+        :param with_content: Determines whether the content should be fetched along with the properties and metadata
         """
-        response = self._request('get', "/%s/%s" % (container, name))
+        response = self._request('get' if with_content else 'head', "/%s/%s" % (container, name))
 
-        if response.status_code != 200:
+        if response.status_code != 200: # Error
             response.raise_for_status()
 
         metadata = { key.replace("x-ms-meta-", ""): value for key, value in response.headers.items() if key.startswith('x-ms-meta-')}
-
         blob = Blob(name, self.get_url('/%s/%s' % (container, name)), properties = response.headers, metadata=metadata)
+
+        if with_content:
+            blob.content = response.content
+
         return blob
+
+    def get_blob_content(self, container, name, text = False):
+        """
+        Directly downloads the content of a blob and by default returns the content as bytes.
+        If text is set to True it will return the content as encoded text instead.
+        """
+        blob = Blob(name, self.get_url('/%s/%s' % (container, name)))
+        if text:
+            return blob.download_text()
+        else:
+            return blob.download_bytes()
