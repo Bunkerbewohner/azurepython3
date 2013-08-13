@@ -7,12 +7,20 @@ class Container:
     def __init__(self, name, url = None, properties = None, metadata = None):
         self.name = name
         self.url = url
-        self.properties = properties
-        self.metadata = metadata
+        self.properties = properties if properties != None else {}
+        self.metadata = metadata if metadata != None else {}
 
     @classmethod
     def from_element(cls, element : etree.Element):
-        container = Container(element.find('Name').text)
+        url = element.find('Url').text
+        properties = dict([(p.tag, p.text) for p in element.find('Properties')])
+
+        if element.find('Metadata') != None:
+            metadata = dict([(e.tag, e.text) for e in element.find('Metadata')])
+        else:
+            metadata = {}
+
+        container = Container(element.find('Name').text, url, properties, metadata)
         return container
 
 
@@ -20,8 +28,8 @@ class Blob:
     def __init__(self, name, url = None, properties = None, metadata = None):
         self.name = name
         self.url = url
-        self.properties = properties
-        self.metadata = metadata
+        self.properties = properties if properties != None else {}
+        self.metadata = metadata if metadata != None else {}
 
     @classmethod
     def from_element(cls, element : etree.Element):

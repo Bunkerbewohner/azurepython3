@@ -16,8 +16,12 @@ from azurepython3.blobservice import BlobService
 # create from JSON config, containing "account_name" and "account_key"
 svc = BlobService.from_config("credentials.json")
 
-# or...
+# or specifiy account credentials explicitly
 svc = BlobService("myaccountname", "myaccountkey")
+
+# or attempt to discover an "azurecredentials.json" file in the local filetree
+svc = BlobService.discover()
+
 ```
 
 ### Create a Container
@@ -47,11 +51,25 @@ This example shows how to list containers of an account. The method ```BlobServi
 from azurepython3.blobservice import BlobService
 svc = BlobService.from_config("azurecredentials.json")
 containers = svc.list_containers()
+
+for c in containers:
+	print("%s (%s)" % (c.name, c.url))
+	print(c.properties)
+```
+
+### Delete a Container
+
+```python
+from azurepython.blobservice import BlobService
+svc = BlobService.discover()
+
+if svc.delete_container('containername'):
+	print("Container was deleted")
 ```
 
 ### Create a Blob
 
-The following code example uses the BlobService to upload a file to an existing container.
+The following code example uses the BlobService to upload a file to an existing container. The content is expected to be an iterable of bytes, such as a bytearray. Optionally the content encoding can be passed an argument. If not provided none will be specified.
 
 ```python
 from azurepython3.blobservice import BlobService
@@ -61,6 +79,28 @@ with open("path/to/somefile.ext") as file:
 	svc.create_blob('containername', 'blobname', file.read())
 
 ```		
+
+### List Blobs
+
+```python3
+from azurepython3.blobservice import BlobService
+svc = BlobService.discover()
+
+blobs = svc.list_blobs('container-name')
+for b in blob:
+	print("%s (%s)" % (b.name, b.url))
+	print(b.properties)
+```
+
+### Delete a Blob
+
+```python
+from azurepython.blobservice import BlobService
+svc = BlobService.discover()
+
+if svc.delete_blob('containername', 'blobname'):
+	print("Blob was deleted")
+```
 
 UnitTests
 ---------
