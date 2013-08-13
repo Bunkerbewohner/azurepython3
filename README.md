@@ -82,15 +82,36 @@ with open("path/to/somefile.ext") as file:
 
 ### List Blobs
 
+To list blobs in a container use the method ```BlobService.list_blobs(container, prefix=None)```. You can use ```prefix``` to filter blobs whose names start with that prefix. The blobs returned only contain properties and metadata, not the contents. Contents can be downloaded separately either by using ```BlobService.get_blob(container,name,with_content=True)``` or calling ```Blob.download_bytes()``` on the Blob instance.
+
 ```python3
 from azurepython3.blobservice import BlobService
 svc = BlobService.discover()
 
-blobs = svc.list_blobs('container-name')
+blobs = svc.list_blobs('container-name', prefix = None)
 for b in blob:
 	print("%s (%s)" % (b.name, b.url))
 	print(b.properties)
 ```
+
+### Get a Blob
+
+Single blobs can be fetched with or without their contents.
+
+```python
+from azurepython3.blobservice import BlobService
+svc = BlobService.discover()
+
+# Get blob properties, metadata and content in one request
+blob = svc.get_blob('container-name', 'file.ext', with_content = True)
+print(blob.content)
+
+# Or fetch only the properties and metadata, then the content optionally in a second request
+blob = svc.get_blob('container-name', 'file.ext', with_content = False)
+if print_content:
+	print(blob.download_bytes())
+```
+ 
 
 ### Delete a Blob
 
