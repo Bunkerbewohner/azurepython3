@@ -3,6 +3,13 @@ azure-python3
 
 **azurepython3** is a Python 3.3 compatible library for Windows Azure. This package is still in an early development phase. Right now only the essential functions of the Azure REST API are implemented, so that it can be used as a custom Django Storage provider.
 
+Installation and Usage
+----------------------
+
+Even though I created the appropriate ```setup.py``` file already I haven't submitted the package to PyPI so far, since this is my first Python package and I don't feel the quality is high enough yet.
+
+So just check out this repository and add the directory to your python path.
+
 Examples
 --------
 
