@@ -1,5 +1,6 @@
 import json
 import xml.etree.ElementTree as etree
+import requests
 from azurepython3.service import AzureService
 
 
@@ -30,6 +31,18 @@ class Blob:
         self.url = url
         self.properties = properties if properties != None else {}
         self.metadata = metadata if metadata != None else {}
+
+    def download_text(self, encoding = None):
+        response = requests.get(self.url)
+
+        if encoding != None:
+            response.encoding = encoding
+
+        return response.text
+
+    def download_bytes(self):
+        return requests.get(self.url).content
+
 
     @classmethod
     def from_element(cls, element : etree.Element):
@@ -139,3 +152,17 @@ class BlobService(AzureService):
     def delete_blob(self, container, name):
         response = self._request('delete', '/%s/%s' % (container, name))
         return response.status_code == 202 # Accepted
+
+    def get_blob(self, container, name):
+        """
+        Gets a blob including its properties and metadata.
+        """
+        response = self._request('get', "/%s/%s" % (container, name))
+
+        if response.status_code != 200:
+            response.raise_for_status()
+
+        metadata = { key.replace("x-ms-meta-", ""): value for key, value in response.headers.items() if key.startswith('x-ms-meta-')}
+
+        blob = Blob(name, self.get_url('/%s/%s' % (container, name)), properties = response.headers, metadata=metadata)
+        return blob
