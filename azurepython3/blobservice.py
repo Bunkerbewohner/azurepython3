@@ -11,9 +11,30 @@ class Container:
         self.metadata = metadata
 
     @classmethod
-    def from_element(self, element : etree.Element):
+    def from_element(cls, element : etree.Element):
         container = Container(element.find('Name').text)
         return container
+
+
+class Blob:
+    def __init__(self, name, url = None, properties = None, metadata = None):
+        self.name = name
+        self.url = url
+        self.properties = properties
+        self.metadata = metadata
+
+    @classmethod
+    def from_element(cls, element : etree.Element):
+        name = element.find('Name').text
+        url = element.find('Url').text
+        properties = dict([(p.tag, p.text) for p in element.find('Properties')])
+
+        if element.find('Metadata') != None:
+            metadata = dict([(e.tag, e.text) for e in element.find('Metadata')])
+        else:
+            metadata = {}
+
+        return Blob(name, url, properties, metadata)
 
 
 class BlobService(AzureService):
@@ -28,6 +49,17 @@ class BlobService(AzureService):
 
         # create the blob service
         return BlobService(credentials['account_name'], credentials['account_key'])
+
+    @classmethod
+    def discover(cls):
+        """ Searches for an Azure configuration file to take the credentials from """
+        import os
+        for root, dirs, files in os.walk('.'):
+          for file in files:
+            if file == 'azurecredentials.json':
+              return BlobService.from_config(os.path.join(root, file))
+
+        return None
 
     def create_container(self, name, access = None):
         """
@@ -78,7 +110,7 @@ class BlobService(AzureService):
         response = self._request('get', '/' + container, params = query)
         root = etree.fromstring(response.text)
 
-        return [x for x in root.iter('Blob')]
+        return [Blob.from_element(x) for x in root.iter('Blob')]
 
     def create_blob(self, container, name, content):
         """
