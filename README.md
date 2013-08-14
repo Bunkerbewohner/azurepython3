@@ -11,7 +11,7 @@ The development status of this package is "alpha". While it works and I'm succes
 Installation and Usage
 ----------------------
 
-You can download the package from GitHub or soon will be able to install it from PyPI using **easy_install** or **pip**, e.g. ```pip install azurepython3```. Currently I'm still figuring out how this whole PyPI thing works, and my ```setup.py upload``` is not working yet.
+You can download the package from GitHub or install it from PyPI using **easy_install** or **pip**, e.g. ```pip install azurepython3```.
 
 The important classes of this package are **azurepython3.blobservice.BlobService**, which offers essential functions for Windows Azure blob storage, and **azurepython3.djangostorage.AzureStorage**, which implements a custom Django storage based on Azure's blob storage.
 

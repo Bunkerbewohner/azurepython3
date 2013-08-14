@@ -2,7 +2,7 @@ from distutils.core import setup
 
 setup(
     name='azurepython3',
-    version='0.1.0',
+    version='0.1.3',
     author='Mathias Kahl',
     author_email='mathias.kahl@gmail.com',
     packages=['azurepython3'],
