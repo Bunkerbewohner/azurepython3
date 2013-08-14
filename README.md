@@ -31,9 +31,9 @@ Here are a couple of examples of how to use this library.
  		* [List Blobs](#list-blobs)
  		* [Get Blob](#get-blob)
  		* [Delete Blob](#delete-blob)
- * [Using AzureStorage in Django](#azure-storage)
+ * [Using AzureStorage in Django](#using-azurestorage-in-django)
 
-### Get BlobService <a id="get-blobservice"></a>
+### Get BlobService
 
 The interface to all Blob storage related functions is the class BlobService. It requires the Windows Azure account name and an access key to work. These credentials can be passed directly as parameters. Additionally the helper method BlobService.from_config can read the values from a JSON file that contains an object with the properties "account_name" and "account_key".
 
@@ -50,7 +50,7 @@ svc = BlobService("myaccountname", "myaccountkey")
 svc = BlobService.discover()
 ```
 
-### Create a Container <a id="create-container"></a>
+### Create Container
 
 This example shows how to create containers with different public access rights, determined by the second parameter of ```BlobService.create_container(name, access)```. The following values are possible:
 
@@ -69,7 +69,7 @@ svc.create_container("new-protected-container", access = "blob")
 
 **Remarks:** The method will return True if the container was successfully created. Errors will cause appropriate exceptions. Specifically, if the container already exists an HTTPError with the status code 409 (Conflict) will be raised.
 
-### List Containers <a id="list-containers"></a>
+### List Containers
 
 This example shows how to list containers of an account. The method ```BlobService.list_containers()``` will return a list of ```Container``` instances, consisting of name, url, properties and metadata.
 
@@ -83,7 +83,7 @@ for c in containers:
 	print(c.properties)
 ```
 
-### Delete a Container <a id="delete-container"></a>
+### Delete a Container
 
 ```python
 from azurepython.blobservice import BlobService
@@ -93,7 +93,7 @@ if svc.delete_container('containername'):
 	print("Container was deleted")
 ```
 
-### Create a Blob <a id="create-blob"></a>
+### Create Blob
 
 The following code example uses the BlobService to upload a file to an existing container. The content is expected to be an iterable of bytes, such as a bytearray. Optionally the content encoding can be passed an argument. If not provided none will be specified.
 
@@ -106,7 +106,7 @@ with open("path/to/somefile.ext") as file:
 
 ```		
 
-### List Blobs <a id="list-blobs"></a>
+### List Blobs
 
 To list blobs in a container use the method ```BlobService.list_blobs(container, prefix=None)```. You can use ```prefix``` to filter blobs whose names start with that prefix. The blobs returned only contain properties and metadata, not the contents. Contents can be downloaded separately either by using ```BlobService.get_blob(container,name,with_content=True)``` or calling ```Blob.download_bytes()``` on the Blob instance.
 
@@ -120,7 +120,7 @@ for b in blob:
 	print(b.properties)
 ```
 
-### Get a Blob <a id="get-blob"></a>
+### Get Blob
 
 Single blobs can be fetched with or without their contents.
 
@@ -139,7 +139,7 @@ if print_content:
 ```
  
 
-### Delete a Blob <a id="delete-blob"></a>
+### Delete Blob
 
 ```python
 from azurepython.blobservice import BlobService
@@ -149,7 +149,6 @@ if svc.delete_blob('containername', 'blobname'):
 	print("Blob was deleted")
 ```
 
-[](#azure-storage)
 ### Using AzureStorage in Django
 
 To use Windows Azure Blob Storage as a custom storage provider in Django you can simply use the **AzureStorage** class, as in the following example.
