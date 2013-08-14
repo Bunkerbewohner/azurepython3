@@ -25,7 +25,10 @@ class AzureStorage(Storage):
         Creates a new AzureStorage. The container is not automatically created and therefore must already exist.
         """
         if container is None:
-            self.container = settings.AZURE_DEFAULT_CONTAINER
+            if hasattr(settings, 'AZURE_DEFAULT_CONTAINER'):
+                self.container = settings.AZURE_DEFAULT_CONTAINER
+            else:
+                self.container = "$root"
         else:
             self.container = container
 
