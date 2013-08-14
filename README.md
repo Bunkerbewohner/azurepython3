@@ -149,7 +149,8 @@ if svc.delete_blob('containername', 'blobname'):
 	print("Blob was deleted")
 ```
 
-### Using AzureStorage in Django <a id="azure-storage"></a>
+[](#azure-storage)
+### Using AzureStorage in Django
 
 To use Windows Azure Blob Storage as a custom storage provider in Django you can simply use the **AzureStorage** class, as in the following example.
 
