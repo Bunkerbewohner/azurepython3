@@ -2,6 +2,7 @@ import json
 import mimetypes
 import xml.etree.ElementTree as etree
 import requests
+from requests import HTTPError
 from azurepython3.service import AzureService
 
 
@@ -180,7 +181,14 @@ class BlobService(AzureService):
         Gets a blob including its properties and metadata.
         :param with_content: Determines whether the content should be fetched along with the properties and metadata
         """
-        response = self._request('get' if with_content else 'head', "/%s/%s" % (container, name))
+
+        try:
+            response = self._request('get' if with_content else 'head', "/%s/%s" % (container, name))
+        except HTTPError as e:
+            if e.response.status_code == 404:
+                return None
+            else:
+                raise e
 
         if response.status_code != 200: # Error
             response.raise_for_status()

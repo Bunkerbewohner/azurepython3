@@ -34,33 +34,35 @@ class AzureStorage(Storage):
         else:
             self.service = BlobService(settings.AZURE_ACCOUNT_NAME, settings.AZURE_ACCOUNT_KEY)
 
+    def _transform_name(self, name):
+        return name.replace("\\", "/")
+
     def _open(self, name, mode = 'rb'):
+        name = self._transform_name(name)
         content = self.service.get_blob_content(self.container, name)
         file = SpooledTemporaryFile()
         file.write(content)
         return file
 
     def _save(self, name, content):
+        name = self._transform_name(name)
         content.open(mode='rb')
-        data = content.read()
+        data = bytearray(content.read())
         self.service.create_blob(self.container, name, data)
         return name
 
     def delete(self, name):
+        name = self._transform_name(name)
         self.service.delete_blob(self.container, name)
         return name
 
     def exists(self, name):
-        try:
-            blob = self.service.get_blob(self.container, name, with_content=False)
-            return blob != None
-        except HTTPError as e:
-            if e.response.status_code == 404:
-                return False
-            else:
-                raise e
+        name = self._transform_name(name)
+        blob = self.service.get_blob(self.container, name, with_content=False)
+        return blob != None
 
     def listdir(self, path = None):
+        path = self._transform_name(path)
         blobs = self.service.list_blobs(self.container, prefix = path)
         paths = [os.path.split(blob.name) for blob in blobs]
         dirs = [path[0] for path in paths]
@@ -68,12 +70,14 @@ class AzureStorage(Storage):
         return (dirs, files)
 
     def size(self, name):
+        name = self._transform_name(name)
         blob = self.service.get_blob(self.container, name, with_content=False)
-        return blob.content_length()
+        return blob.content_length() if blob != None else 0
 
     def url(self, name):
+        name = self._transform_name(name)
         blob = self.service.get_blob(self.container, name, with_content=False)
-        return blob.url
+        return blob.url if blob != None else None
 
         
 
