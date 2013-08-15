@@ -182,6 +182,38 @@ storage=AzureStorage(account_name='myaccountname',
 					 container='containername'))
 ```
 
+### Migrate from Django's FileSystemStorage to AzureStorage
+
+The default storage used by Django is FileSystemStorage which stores all user uploads in the user defined ```MEDIA_ROOT``` directory. Add azurepython3 to ```INSTALLED_APPS``` to gain access to the ```azuremigrate``` command, which will automatically upload all those files to the AZURE_DEFAULT_CONTAINER. This is not required for using the AzureStorage itself, it merely provides the admin command. 
+
+```python
+INSTALLED_APPS = (
+    'django.contrib.auth',
+    'django.contrib.contenttypes',
+    'django.contrib.sessions',
+    'django.contrib.sites',
+    'django.contrib.messages',
+    'django.contrib.staticfiles',
+    'django.contrib.humanize',
+    #...
+
+    # include azurepython3 app to get "azuremigrate" command
+    'azurepython3'
+)
+```
+
+Once the app is available execute the command to upload the media files:
+
+```python
+python manage.py azuremigrate
+Starting migration from "<project_dir>/media" to Cloud Storage container "$root"
+
+folder1/image1.jpg...ok
+folder1/image2.jpg...ok
+...
+migration complete
+```
+
 UnitTests
 ---------
 
