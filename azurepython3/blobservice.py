@@ -163,6 +163,7 @@ class BlobService(AzureService):
         :param name: blob name
         :param content: byte content
         """
+        name = self._sanitize_blobname(name)
         headers = { 'x-ms-blob-type': "BlockBlob", 'Content-Encoding': content_encoding }
 
         content_type = mimetypes.guess_type(name)[0]
@@ -173,6 +174,7 @@ class BlobService(AzureService):
         return response.status_code == 201 # Created
 
     def delete_blob(self, container, name):
+        name = self._sanitize_blobname(name)
         response = self._request('delete', '/%s/%s' % (container, name))
         return response.status_code == 202 # Accepted
 
@@ -181,6 +183,7 @@ class BlobService(AzureService):
         Gets a blob including its properties and metadata.
         :param with_content: Determines whether the content should be fetched along with the properties and metadata
         """
+        name = self._sanitize_blobname(name)
 
         try:
             response = self._request('get' if with_content else 'head', "/%s/%s" % (container, name))
@@ -206,8 +209,13 @@ class BlobService(AzureService):
         Directly downloads the content of a blob and by default returns the content as bytes.
         If text is set to True it will return the content as encoded text instead.
         """
+        name = self._sanitize_blobname(name)
         blob = Blob(name, self.get_url('/%s/%s' % (container, name)))
         if text:
             return blob.download_text()
         else:
             return blob.download_bytes()
+
+    def _sanitize_blobname(self, blobname):
+        # on windows paths use backslashes, which is not compatible to URLs. So convert them to slashes.
+        return blobname.replace("\\", "/")
