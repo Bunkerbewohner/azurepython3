@@ -32,6 +32,7 @@ Here are a couple of examples of how to use this library.
  		* [Get Blob](#get-blob)
  		* [Delete Blob](#delete-blob)
  * [Using AzureStorage in Django](#using-azurestorage-in-django)
+ * [Migrate from Django's FileSystemStorage to AzureStorage](#migrate-from-djangos-filesystemstorage-to-azurestorage)
 
 ### Get BlobService
 
@@ -181,6 +182,8 @@ storage=AzureStorage(account_name='myaccountname',
 					 account_key='myaccountkey',
 					 container='containername'))
 ```
+
+If previously you have been using the default FileSystemStorage, you can use the ```azuremigrate``` command to migrate all your files into the cloud storage, as described in the next example.
 
 ### Migrate from Django's FileSystemStorage to AzureStorage
 
