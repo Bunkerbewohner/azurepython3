@@ -79,7 +79,6 @@ class AzureStorage(Storage):
 
     def url(self, name):
         name = self._transform_name(name)
-        blob = self.service.get_blob(self.container, name, with_content=False)
-        return blob.url if blob != None else None
+        return self._service.get_blob_url(self.container, name)
 
 

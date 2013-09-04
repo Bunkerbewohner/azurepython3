@@ -1,2 +1,3 @@
 include README.md
 include azurepython3/tests/*.py
+recursive-include azurepython3/management *.py

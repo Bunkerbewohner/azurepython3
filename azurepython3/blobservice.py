@@ -178,6 +178,12 @@ class BlobService(AzureService):
         response = self._request('delete', '/%s/%s' % (container, name))
         return response.status_code == 202 # Accepted
 
+    def get_blob_url(self, container, name):
+        """
+        Returns the URL that refers to the blob by this name in the given container.
+        """
+        return self.get_url('/%s/%s' % (container, name))
+
     def get_blob(self, container, name, with_content = True):
         """
         Gets a blob including its properties and metadata.
@@ -197,7 +203,7 @@ class BlobService(AzureService):
             response.raise_for_status()
 
         metadata = { key.replace("x-ms-meta-", ""): value for key, value in response.headers.items() if key.startswith('x-ms-meta-')}
-        blob = Blob(name, self.get_url('/%s/%s' % (container, name)), properties = response.headers, metadata=metadata)
+        blob = Blob(name, self.get_blob_url(container, name), properties = response.headers, metadata=metadata)
 
         if with_content:
             blob.content = response.content
