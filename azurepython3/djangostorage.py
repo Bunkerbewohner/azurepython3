@@ -61,8 +61,7 @@ class AzureStorage(Storage):
 
     def exists(self, name):
         name = self._transform_name(name)
-        blob = self.service.get_blob(self.container, name, with_content=False)
-        return blob != None
+        return self.service.blob_exists(self.container, name)
 
     def listdir(self, path = None):
         path = self._transform_name(path)

@@ -178,11 +178,11 @@ class BlobService(AzureService):
         response = self._request('delete', '/%s/%s' % (container, name))
         return response.status_code == 202 # Accepted
 
-    def get_blob_url(self, container, name):
+    def get_blob_url(self, container, name, protocol=None):
         """
         Returns the URL that refers to the blob by this name in the given container.
         """
-        return self.get_url('/%s/%s' % (container, name))
+        return self.get_url('/%s/%s' % (container, name), protocol=None)
 
     def get_blob(self, container, name, with_content = True):
         """
@@ -209,6 +209,11 @@ class BlobService(AzureService):
             blob.content = response.content
 
         return blob
+
+    def blob_exists(self, container, name):
+        url = self.get_blob_url(container, name, protocol='http')
+        resp = requests.head(url)
+        return resp.status_code == 200
 
     def get_blob_content(self, container, name, text = False):
         """

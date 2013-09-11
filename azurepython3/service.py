@@ -24,8 +24,8 @@ class AzureService:
             protocol = 'https' if USE_SSL else 'http'
         return "%s://%s.blob.core.windows.net" % (protocol, self.account_name)
 
-    def get_url(self, query = '/'):
-        return self.get_host() + query
+    def get_url(self, query = '/', protocol=None):
+        return self.get_host(protocol) + query
 
     def _headers(self):
         return {
