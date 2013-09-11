@@ -3,6 +3,7 @@ import mimetypes
 import xml.etree.ElementTree as etree
 import requests
 from requests import HTTPError
+from requests.adapters import HTTPAdapter
 from azurepython3.service import AzureService
 
 
@@ -182,7 +183,7 @@ class BlobService(AzureService):
         """
         Returns the URL that refers to the blob by this name in the given container.
         """
-        return self.get_url('/%s/%s' % (container, name), protocol=None)
+        return self.get_url('/%s/%s' % (container, name), protocol=protocol)
 
     def get_blob(self, container, name, with_content = True):
         """
@@ -212,7 +213,9 @@ class BlobService(AzureService):
 
     def blob_exists(self, container, name):
         url = self.get_blob_url(container, name, protocol='http')
-        resp = requests.head(url)
+        session = requests.session()
+        session.mount('http://', HTTPAdapter(max_retries=5))
+        resp = session.head(url)
         return resp.status_code == 200
 
     def get_blob_content(self, container, name, text = False):

@@ -1,5 +1,6 @@
 from datetime import datetime
 import requests
+from requests.adapters import HTTPAdapter
 from azurepython3.auth import SharedKeyAuthentication
 
 USE_SSL = True
@@ -9,10 +10,10 @@ try:
 except ImportError:
     USE_SSL = False
 
-
 class AzureService:
 
     timeout = None
+    retry = True
 
     def __init__(self, account_name, account_key):
         self.account_name = account_name
@@ -59,7 +60,11 @@ class AzureService:
         self.auth.authenticate(req, len(content))
         request = req.prepare()
 
-        response = requests.session().send(request)
+        session = requests.session()
+        session.mount('http://', HTTPAdapter(max_retries=5))
+        session.mount('https://', HTTPAdapter(max_retries=5))
+
+        response = session.send(request)
         response.encoding = 'utf-8-sig'
 
         # raise underlying HTTPError if something goes wrong
