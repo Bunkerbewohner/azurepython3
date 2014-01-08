@@ -3,6 +3,7 @@ This module implements a custom Django storage based on the BlobService.
 """
 import os
 from tempfile import SpooledTemporaryFile
+from django.core.files import File
 from requests import HTTPError
 from azurepython3.blobservice import BlobService
 
@@ -40,13 +41,14 @@ class AzureStorage(Storage):
     def _transform_name(self, name):
         return name.replace("\\", "/")
 
-    def _open(self, name, mode = 'rb'):
+    def _open(self, name, mode = 'rb') -> File:
         name = self._transform_name(name)
         content = self.service.get_blob_content(self.container, name)
         file = SpooledTemporaryFile()
         file.write(content)
         file.seek(0) # explicitly reset to allow reading from the beginning afterwards as-is
-        return file
+
+        return File(file)
 
     def _save(self, name, content):
         name = self._transform_name(name)
