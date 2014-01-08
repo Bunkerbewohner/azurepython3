@@ -45,6 +45,7 @@ class AzureStorage(Storage):
         content = self.service.get_blob_content(self.container, name)
         file = SpooledTemporaryFile()
         file.write(content)
+        file.seek(0) # explicitly reset to allow reading from the beginning afterwards as-is
         return file
 
     def _save(self, name, content):
