@@ -63,6 +63,8 @@ class AzureStorage(Storage):
         return name
 
     def exists(self, name):
+        if not name:
+            return False
         name = self._transform_name(name)
         return self.service.blob_exists(self.container, name)
 

@@ -2,6 +2,7 @@ from datetime import datetime
 import requests
 from requests.adapters import HTTPAdapter
 from azurepython3.auth import SharedKeyAuthentication
+from urllib.parse import quote_plus
 
 USE_SSL = True
 
@@ -26,7 +27,7 @@ class AzureService:
         return "%s://%s.blob.core.windows.net" % (protocol, self.account_name)
 
     def get_url(self, query = '/', protocol=None):
-        return self.get_host(protocol) + query
+        return self.get_host(protocol) + quote_plus(query, safe='/')
 
     def _headers(self):
         return {
