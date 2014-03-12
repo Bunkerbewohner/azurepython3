@@ -148,7 +148,7 @@ class BlobService(AzureService):
         query = {
             'restype': 'container',
             'comp': 'list',
-            'prefix': prefix
+            'prefix': prefix if prefix else None
         }
 
         response = self._request('get', '/' + container, params = query)
