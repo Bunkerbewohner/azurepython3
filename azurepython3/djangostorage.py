@@ -6,6 +6,7 @@ from tempfile import SpooledTemporaryFile
 from django.core.files import File
 from requests import HTTPError
 from azurepython3.blobservice import BlobService
+from datetime import datetime
 
 try:
     from django.core.files.storage import Storage
@@ -85,4 +86,8 @@ class AzureStorage(Storage):
         name = self._transform_name(name)
         return self.service.get_blob_url(self.container, name)
 
+    def modified_time(self, name):
+        name = self._transform_name(name)
+        blob = self.service.get_blob(self.container, name, with_content=False)
+        return datetime.strptime(blob.properties['Last-Modified'], "%a, %d %b %Y %H:%M:%S GMT")
 
