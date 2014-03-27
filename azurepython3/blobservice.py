@@ -230,6 +230,59 @@ class BlobService(AzureService):
         else:
             return blob.download_bytes()
 
+    def enable_cors(self, origins, allowed_methods = None, max_age_seconds = None):
+        """
+        Enables CORS for all files on the BlobService.
+        :param origins: allowed origin domains. Set '*' to allow all domains.
+        :type origins: string|list|tuple
+        :param allowed_methods: allowed HTTP methods
+        :type allowed_methods: string|list|tuple
+        :param max_age_seconds: how long to cache preflight answers
+        """
+
+        if not allowed_methods:
+            allowed_methods = ['GET', 'PUT']
+
+        if not max_age_seconds:
+            max_age_seconds = 500
+
+        headers = {
+            'x-ms-version': '2013-08-15'
+        }
+
+        params = {
+            'restype': 'service',
+            'comp': 'properties'
+        }
+
+        if type(origins) is list or type(origins) is tuple:
+            origins = ",".join(origins)
+
+        if type(allowed_methods) is list or type(allowed_methods) is tuple:
+            allowed_methods = ",".join(allowed_methods)
+
+        content = '''<?xml version="1.0" encoding="utf-8"?>
+            <StorageServiceProperties>
+                <Cors>
+                    <CorsRule>
+                        <AllowedOrigins>{origins}</AllowedOrigins>
+                        <AllowedMethods>{methods}</AllowedMethods>
+                        <MaxAgeInSeconds>{age}</MaxAgeInSeconds>
+                        <ExposedHeaders>x-ms-meta-data*,x-ms-meta-customheader</ExposedHeaders>
+                        <AllowedHeaders>x-ms-meta-target*,x-ms-meta-customheader</AllowedHeaders>
+                    </CorsRule>
+                </Cors>
+                <DefaultServiceVersion>{version}</DefaultServiceVersion>
+            </StorageServiceProperties>'''.format(origins=origins, age=max_age_seconds,
+                                                  methods=allowed_methods, version=headers['x-ms-version'])
+
+        try:
+            response = self._request('put', '/', headers, params, content)
+        except HTTPError as e:
+            raise e
+
+        return response.status_code == 202 # ACCEPTED
+
     def _sanitize_blobname(self, blobname):
         # on windows paths use backslashes, which is not compatible to URLs. So convert them to slashes.
         return blobname.replace("\\", "/")
