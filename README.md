@@ -22,6 +22,7 @@ Here are a couple of examples of how to use this library.
 
  * Using Blob Services 	
  	* [Get BlobService](#get-blobservice)
+ 		* [Enable CORS](#enable-cors)
  	* Containers
  		* [Create Container](#create-container)
  		* [List Containers](#list-containers)
@@ -49,6 +50,22 @@ svc = BlobService("myaccountname", "myaccountkey")
 
 # or attempt to discover an "azurecredentials.json" file in the local filetree
 svc = BlobService.discover()
+```
+
+### Enable Cors
+
+If you want to use the files on your BlobStorage with Cross-Origin Resource Sharing (CORS), you can enable it using the BlobService instance:
+
+```python
+svc = BlobService.discover()
+svc.enable_cors('http://mydomain.com')
+```
+
+Check the docstring for more advanced options such as specifying multiple domains, allowed HTTP methods and a maximum age for preflight answers. If you use AzureStorage, you can access the BlobService instance through its "service" property:
+
+```python
+storage = AzureStorage()
+storage.service.enable_cors('http://mydjangowebsite.com')
 ```
 
 ### Create Container
